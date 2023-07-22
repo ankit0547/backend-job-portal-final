@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get('/', getBootcamps);
 
-router.get('/', getBootcamp);
+router.post('/:id', getBootcamp);
 
 router.post('/', createBootcamp);
 
