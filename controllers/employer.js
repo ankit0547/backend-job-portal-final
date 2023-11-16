@@ -1,18 +1,49 @@
 const asyncHandler = require('../middleware/asyncHandler');
-const BootCamp = require('../models/bootcamp');
+const User = require('../models/jobSeekerProfile');
+const companyProfile = require('../models/companyProfile');
 const ErrorResponse = require('../utils/errorResponse');
+const { sendTokenResponse } = require('../middleware/tokenResponse');
+const jobPost = require('../models/jobPost');
 
-//@desc     Get all bootcamps
-//@route    GET /api/v1/bootcamps
-//@access   Public
-exports.getBootcamps = async (req, res) => {
-  try {
-    const bootcamps = await BootCamp.find();
-    res.status(201).json({ success: true, data: bootcamps });
-  } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+//@desc     Create registerEmployer
+//@route    POST /api/v1/employer/register
+//@access   Private
+exports.registerEmployer = asyncHandler(async (req, res) => {
+  const {
+    name,
+    password,
+    userType,
+    company_name,
+    company_email,
+    company_description,
+  } = req.body;
+  if (userType === '1') {
+    // Create user
+    const company = await companyProfile.create({
+      name,
+      company_name,
+      company_email,
+      company_description,
+      userType,
+      password,
+    });
+    //Create token
+    sendTokenResponse(company, 200, res);
   }
-};
+
+  res.status(201).json({ success: true, token });
+});
+
+//@desc     Create registerEmployer
+//@route    POST /api/v1/employer/register
+//@access   Private
+exports.postJob = asyncHandler(async (req, res) => {
+  const { job_title, job_desc } = req.body;
+  // Create user
+  const job = await jobPost.create({ job_title, job_desc });
+
+  res.status(201).json({ success: true, job });
+});
 
 //@desc     GET Single bootcamp
 //@route    GET /api/v1/bootcamps/:id

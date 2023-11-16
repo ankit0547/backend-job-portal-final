@@ -14,6 +14,14 @@ connectDB();
 
 const app = express();
 
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
+});
+
 // Body parser
 app.use(express.json());
 
@@ -21,7 +29,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes files
-const bootcampsRoute = require('./routes/bootcamps');
+const employerRoutes = require('./routes/employer');
+const jobSeekerRoutes = require('./routes/jobSeeker');
 const userRoute = require('./routes/auth');
 
 console.log(process.env.NODE_ENV);
@@ -31,7 +40,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Mount Routes
-app.use('/api/v1/bootcamps', bootcampsRoute);
+app.use('/api/v1/employer', employerRoutes);
+app.use('/api/v1/jobSeeker', jobSeekerRoutes);
 app.use('/api/v1/auth', userRoute);
 
 app.use(errorHandler);

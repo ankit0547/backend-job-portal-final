@@ -2,19 +2,27 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const UserSchema = new mongoose.Schema({
+const CompanyProfileSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please Add a name'],
   },
-  email: {
+  company_name: {
+    type: String,
+    required: [true, 'Please Add a name'],
+  },
+  company_email: {
     type: String,
     required: [true, 'Please Add an email'],
     unique: true,
   },
-  role: {
+  company_description: {
+    required: [true, 'Please Add user type'],
     type: String,
-    default: 'user',
+    default: '',
+  },
+  userType: {
+    type: String,
   },
   password: {
     type: String,
@@ -29,22 +37,22 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Encript password using bcrypt
-UserSchema.pre('save', async function (next) {
+CompanyProfileSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 // Sign JWT and return
-UserSchema.methods.getSignedJwtToken = function () {
+CompanyProfileSchema.methods.getSignedJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
 // Match user entered password to hashed password in DB
-UserSchema.methods.matchPassword = async function (enteredPassword) {
+CompanyProfileSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('CompanyProfileSchema', CompanyProfileSchema);
