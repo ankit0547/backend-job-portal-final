@@ -1,60 +1,49 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const logger = require('./middleware/logger');
-const morgan = require('morgan');
-const errorHandler = require('./middleware/error');
-const cookieParser = require('cookie-parser');
-const connectDB = require('./config/db');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const passportConfig = require("./lib/passportConfig");
+const cors = require("cors");
+const fs = require("fs");
 
-// Load env variables
-dotenv.config({ path: './config/config.env' });
+// MongoDB
+mongoose
+  .connect("mongodb+srv://root:root@cluster0.a6hx6ac.mongodb.net/job-portal?", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
+  .then((res) => console.log("Connected to DB"))
+  .catch((err) => console.log(err));
 
-//Connect to DB
-connectDB();
-
-const app = express();
-
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-});
-
-// Body parser
-app.use(express.json());
-
-// Cookie parser
-app.use(cookieParser());
-
-// Routes files
-const employerRoutes = require('./routes/employer');
-const jobSeekerRoutes = require('./routes/jobSeeker');
-const userRoute = require('./routes/auth');
-
-console.log(process.env.NODE_ENV);
-// Dev logging middleware
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+// initialising directories
+if (!fs.existsSync("./public")) {
+  fs.mkdirSync("./public");
+}
+if (!fs.existsSync("./public/resume")) {
+  fs.mkdirSync("./public/resume");
+}
+if (!fs.existsSync("./public/profile")) {
+  fs.mkdirSync("./public/profile");
 }
 
-// Mount Routes
-app.use('/api/v1/employer', employerRoutes);
-app.use('/api/v1/jobSeeker', jobSeekerRoutes);
-app.use('/api/v1/auth', userRoute);
+const app = express();
+const port = 4444;
 
-app.use(errorHandler);
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-const PORT = process.env.PORT || 5000;
-const server = app.listen(
-  PORT,
-  console.log(`Server running in ${process.env.NODE_ENV} mode on PORT ${PORT}`)
-);
+// Setting up middlewares
+app.use(cors());
+app.use(express.json());
+app.use(passportConfig.initialize());
 
-// Handdle unhandled promise rejection
+// Routing
+app.use("/auth", require("./routes/authRoutes"));
+app.use("/api", require("./routes/apiRoutes"));
+app.use("/upload", require("./routes/uploadRoutes"));
+app.use("/host", require("./routes/downloadRoutes"));
 
-process.on('unhandledRejection', (err, promise) => {
-  // console.log(`Error: ${err.message}`);
-  server.close(() => process.exit(1));
+app.listen(port, () => {
+  console.log(`Server started on port ${port}!`);
 });
