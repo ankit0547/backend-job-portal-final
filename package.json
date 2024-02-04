@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start_prod": "pm2 start ecosystem.config.js --env production",
     "start": "set NODE_ENV=production & node server.js",
     "dev": "npx nodemon server.js"
   },
-  "author": "",
+  "author": "Ankit Sharma",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.0",
