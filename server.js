@@ -1,20 +1,16 @@
 const express = require("express");
+const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const passportConfig = require("./lib/passportConfig");
 const cors = require("cors");
 const fs = require("fs");
+const connectDB = require("./config/db");
 
-// MongoDB
-mongoose
-  .connect("mongodb+srv://root:root@cluster0.a6hx6ac.mongodb.net/job-portal?", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  })
-  .then((res) => console.log("Connected to DB"))
-  .catch((err) => console.log(err));
+// Load env variables
+dotenv.config({ path: "./config/config.env" });
+
+connectDB();
 
 // initialising directories
 if (!fs.existsSync("./public")) {
@@ -28,7 +24,7 @@ if (!fs.existsSync("./public/profile")) {
 }
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -45,5 +41,5 @@ app.use("/upload", require("./routes/uploadRoutes"));
 app.use("/host", require("./routes/downloadRoutes"));
 
 app.listen(port, () => {
-  console.log(`Server started on port ${port}!`);
+  console.log(`Server running in ${process.env.NODE_ENV} mode on PORT ${port}`);
 });
