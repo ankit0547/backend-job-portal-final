@@ -1,22 +1,28 @@
-FROM node:21-alpine
+FROM node:20-alpine
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-
-# RUN chmod 777 /node
-
-WORKDIR /home/node/app
-
-
+WORKDIR /app
 COPY package*.json ./
+COPY . /app
+
+# RUN mkdir -p /home
+
+# RUN chown -R node:node /home/node/app
+
+# # RUN chmod 777 /node
+
+# WORKDIR /home/node/app
+
+
+# COPY package*.json ./
 
 
 
-USER node
+# USER node
 
 RUN npm install
 
 # COPY --chown=node:node . .
-COPY --chown=node:node --from=builder /usr/src/app/build ./build
+# COPY --chown=node:node --from=builder /usr/src/app/build ./build
 
 EXPOSE 5856
 
