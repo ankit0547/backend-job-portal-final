@@ -2,7 +2,7 @@
   "name": "job-portal-backend",
   "version": "1.0.0",
   "description": "",
-  "main": index.js",
+  "main": "index.js",
   "scripts": {
     "start_prod": "pm2 start ecosystem.config.js --env production",
     "start": "set NODE_ENV=production & node index.js",
